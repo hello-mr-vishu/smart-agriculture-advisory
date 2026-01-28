@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Agriculture Advisory</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f4faf4;
+    }
+
+    header {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    .time-box {
+      margin-top: 10px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .hero {
+      width: 100%;
+      height: 260px;
+      background: url('/static/farm.png') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    button {
+      background: #2e7d32;
+      color: white;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #1b5e20;
+    }
+
+    .result {
+      display: none;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .light { background: #fff8e1; color: #f57c00; }
+    .moderate { background: #e3f2fd; color: #1976d2; }
+    .heavy { background: #ffebee; color: #c62828; }
+    .none { background: #e8f5e9; color: #2e7d32; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .info-box {
+      background: #f1f8e9;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    @media (max-width: 850px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🌱 Smart Agriculture Advisory System</h1>
+  <p>Anantapur District • AI-Based Decision Support</p>
+  <div class="time-box" id="currentTime"></div>
+</header>
+
+<div class="hero">
+  Empowering Farmers with AI 🌾
+</div>
+
+<div class="container">
+
+  <!-- Info Card -->
+  <div class="card">
+    <h3>📊 System Overview</h3>
+    <p>
+      This module predicts next-day rainfall using an LSTM deep learning model
+      trained on 30-day historical weather data.
+    </p>
+
+    <div class="info-grid">
+      <div class="info-box">📅 Time Series: 30 Days</div>
+      <div class="info-box">🤖 Model: LSTM</div>
+      <div class="info-box">🌡 Features: 4</div>
+      <div class="info-box">🎯 Output: Rainfall (mm)</div>
+    </div>
+
+    <button onclick="simulatePrediction()">Run Rainfall Prediction</button>
+  </div>
+
+  <!-- Result Card -->
+  <div class="card result" id="resultCard">
+    <h3>🌧 Prediction Result</h3>
+
+    <p><strong>Predicted Rainfall:</strong> <span id="predValue">--</span> mm</p>
+    <p><strong>Status:</strong> <span id="predStatus">--</span></p>
+
+    <div class="status none" id="statusBox">---</div>
+
+    <p style="margin-top:10px;"><strong>💡 Advisory:</strong></p>
+    <p id="predAdvisory"></p>
+  </div>
+
+  <!-- Graph -->
+  <div class="card" style="grid-column: span 2;">
+    <h3>📈 Rainfall Trend (Last 30 Days)</h3>
+    <canvas id="rainChart"></canvas>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 Smart Agriculture Advisory System • Final Year B.Tech Project
+</footer>
+
+<script>
+  let rainChart;
+
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').innerText =
+      '🕒 ' + now.toLocaleString();
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  function simulatePrediction() {
+    const dummyData = [];
+
+    for (let i = 0; i < 30; i++) {
+      dummyData.push([
+        Math.random() * 50 + 30,
+        Math.random() * 0.3 + 0.1,
+        Math.random() * 15 + 20,
+        Math.random() > 0.8 ? Math.random() * 5 : 0
+      ]);
+    }
+
+    fetch('/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: dummyData })
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('resultCard').style.display = 'block';
+      document.getElementById('predValue').innerText = data.prediction_mm;
+      document.getElementById('predStatus').innerText = data.status;
+      document.getElementById('predAdvisory').innerText = data.advisory;
+
+      const box = document.getElementById('statusBox');
+      box.className = 'status';
+      if (data.status.includes('Heavy')) box.classList.add('heavy');
+      else if (data.status.includes('Moderate')) box.classList.add('moderate');
+      else if (data.status.includes('Light')) box.classList.add('light');
+      else box.classList.add('none');
+
+      box.innerText = data.status;
+
+      drawRainChart(dummyData.map(d => d[3]));
+    });
+  }
+
+  function drawRainChart(data) {
+    const labels = Array.from({ length: 30 }, (_, i) => `Day ${i+1}`);
+    const ctx = document.getElementById('rainChart').getContext('2d');
+
+    if (rainChart) rainChart.destroy();
+
+    rainChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Rainfall (mm)',
+          data: data,
+          borderWidth: 2,
+          tension: 0.4
+        }]
+      },
+      options: { responsive: true }
+    });
+  }
+</script>
+
+</body>
+</html>
